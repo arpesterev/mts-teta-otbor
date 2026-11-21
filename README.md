@@ -1,52 +1,46 @@
-# Greetings, traveller
+# Image resizer: MTS Teta backend selection task
 
-Второй этап отбора на направление «Бэкенд разработка» в Летнюю школу [МТС.Тета](http://teta.mts.ru/).
+A Java 8 command-line image processing exercise submitted for the MTS Teta summer school's backend selection. It uses Picocli for arguments and image-processing libraries for resize, crop, blur and format conversion.
 
-## Сrop-crop-resize-resize
+The original task statement has been moved unchanged to [`docs/assignment.md`](docs/assignment.md) so that this README can focus on the implementation.
 
-В качестве задания предлагается выполнить проект «crop-crop». Эта утилита позволит ресайзить изображение для остальных сервисов МТС: изменение изображений рекламных баннеров, превью для альбомов и обложки фильмов в маленьком разрешении и другие.
+## Supported options
 
-## Используемые технологии
+The command class in `ResizerApp.java` accepts two positional file paths: **input** followed by **output**.
 
-- Код приложения пишется на Java.
-- Библиотеки, которые можно использовать:
-    - Работа с консольными параметрами [picocli.info](https://picocli.info/).
-    - Работа с изображением [thumbnailator](https://github.com/coobird/thumbnailator). Рекомендуем взять из неё функции обрезки  и изменения параметров картинки.
-    - Библиотека для работы с изображениями и видео [marvin project](https://github.com/gabrielarchanjo/marvin-framework). Рекомендуем взять из неё  GaussianBlur и Crop.
-    - Библиотека, необходимая для запуска тестов [junit5](https://github.com/junit-team/junit5).
+| Option | Arguments | Purpose |
+| --- | --- | --- |
+| `--resize` | width height | Resize the image |
+| `--crop` | width height x y | Crop to a rectangle |
+| `--blur` | radius | Apply blur |
+| `--quality` | value | Set output quality |
+| `--format` | format | Select output format |
 
-## Интерфейс взаимодействия
+The CLI advertises JPEG and PNG support. Check the image processor for the behavior of each combination of options.
 
-```bash
-Version: name version https://gitlab.com/link/
-Available formats: jpeg png webp
-Usage: convert input-file [options ...] output-file
-Options Settings:
-  --resize width height       resize the image
-  --quality value             PEG/PNG compression level
-  --crop width height x y     сut out one or more rectangular regions of the image
-  --blur {radius}             reduce image noise and reduce detail levels 
-  --format "outputFormat"     the image format type
+## Build and run
+
+Prerequisites: Java 8 or later and Maven.
+
+```sh
+mvn test
+mvn package
+java -jar target/resizer-1.0-SNAPSHOT-jar-with-dependencies.jar --help
 ```
 
-## Описание параметров
+Example invocation pattern:
 
-**--resize width height** — уменьшает, увеличивает картинку или задает необходимый размер для изображения. [Пример в документации](https://imagemagick.org/script/command-line-options.php#resize).
+```sh
+java -jar target/resizer-1.0-SNAPSHOT-jar-with-dependencies.jar input.jpg output.jpg --resize 640 480
+```
 
-**--quality value** — задает уровень сжатия файлов JPEG / PNG. Форматы изображений могут быть JPEG и PNG, качество от 1 (самое низкое качество изображения и самое высокое сжатие) до 100 (лучшее качество, но наименее эффективное сжатие). [Пример в документации](https://imagemagick.org/script/command-line-options.php#quality).
+The runnable JAR name comes from the Maven assembly configuration. Commands are documented from the repository; they have not been executed in this update.
 
-**--crop width height x y** —  Вырезает прямоугольную область изображения. Обработанное изображения должно иметь ширину(**width**) и высоту(**height**). Точка отсчета задаётся значениями **x** и **y.** [Пример из документации](https://imagemagick.org/script/command-line-options.php#crop).
+## Code map
 
-**--blur radius** — добавляет размытие или увеличивает резкость. [Пример в документации](https://imagemagick.org/script/command-line-options.php#blur).
+- [`ResizerApp.java`](src/main/java/mts/teta/resizer/ResizerApp.java): application entry point.
+- [`ConsoleAttributes.java`](src/main/java/mts/teta/resizer/ConsoleAttributes.java): command-line options.
+- [`ImageProcessor.java`](src/main/java/mts/teta/resizer/imageprocessor/ImageProcessor.java): image operations and validation.
+- [`ResizerAppTest.java`](src/test/java/mts/teta/resizer/ResizerAppTest.java): tests.
 
-**--format "outputFormat"** — конвертирует изображение в "outputFormat". Параметр "outputFormat" может быть JPEG / PNG. [Пример в документации](https://imagemagick.org/script/command-line-options.php#format).
-
-Валидация входных параметров должна быть реализована. 
-
-## Требования к проекту
-
-1. Код проекта должен быть аккуратным, без дублирования. Наличие больших повторяющихся фрагментов кода может быть причиной снижения баллов.
-2. Проект не должен отдавать изображение более, чем за 350 миллисекунд.
-
-## Полная версия технического задания
-Ты сможешь её найти [по ссылке](https://www.notion.so/edtech17/public-4a6da22b5a36489c99b9b986a4c9d7cb).
+This is a selection exercise, not a maintained image-processing service. Performance requirements in the assignment are task criteria, not benchmarks verified by this README.
